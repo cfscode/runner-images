@@ -80,7 +80,7 @@ variable "install_password" {
 }
 
 variable "server_version" {
-  type = string
+  type    = string
 }
 
 variable "github_runner_user" {
@@ -89,7 +89,7 @@ variable "github_runner_user" {
 }
 
 variable "github_runner_version" {
-  type = string
+  type    = string
 }
 
 #########################
