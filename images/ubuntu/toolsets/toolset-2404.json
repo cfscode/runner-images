@@ -145,7 +145,8 @@
             "upx",
             "xvfb",
             "xz-utils",
-            "zsync"
+            "zsync",
+            "cloud-guest-utils"
         ],
         "cmd_packages": [
             "acl",
