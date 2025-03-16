@@ -8,7 +8,8 @@ packer {
 }
 
 locals {
-  ami_name = var.managed_image_name != "" ? var.managed_image_name : "packer-${var.image_os}-${var.image_version}"
+  epoch_like  = regexReplaceAll("[^0-9]", "", timestamp())
+  ami_name    = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-github-runner/2.322.0/${local.epoch_like}"
 }
 
 #########################
@@ -71,11 +72,6 @@ variable "install_password" {
   type      = string
   default   = ""
   sensitive = true
-}
-
-variable "managed_image_name" {
-  type    = string
-  default = ""
 }
 
 #########################
@@ -282,6 +278,18 @@ build {
     environment_vars = ["HELPER_SCRIPTS=${var.helper_script_folder}"]
     execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     scripts          = ["./../scripts/build/configure-snap.sh"]
+  }
+
+  provisioner "shell" {
+    environment_vars = [
+      "HELPER_SCRIPTS=${var.helper_script_folder}",
+      "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}",
+      "DEBIAN_FRONTEND=noninteractive"
+    ]
+    execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    scripts          = [
+      "./../scripts/build/install-github-runner.sh",
+    ]
   }
 
   # Note: The following cleanup command was using the Azure Linux agent (waagent) to deprovision.

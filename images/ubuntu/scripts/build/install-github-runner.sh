@@ -61,4 +61,7 @@ mkdir -p "$(dirname "$KNOWN_HOSTS")"
 touch "$KNOWN_HOSTS"
 chown $RUNNER_USER:$RUNNER_USER "$KNOWN_HOSTS"
 
+# - Add runner user to docker's group
+usermod -aG docker $RUNNER_USER
+
 echo "GitHub Actions self-hosted runner v$RUNNER_VERSION properly configured."
