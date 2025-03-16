@@ -4,8 +4,6 @@
 # downloads and installs GitHub Actions runner version 2.322.0,
 # copies /etc/environment into the runner’s .env file so that environment variables are preserved,
 
-RUNNER_VERSION="2.322.0"
-RUNNER_USER="runner"
 RUNNER_HOME="/home/$RUNNER_USER"
 RUNNER_DIR="$RUNNER_HOME/actions-runner"
 

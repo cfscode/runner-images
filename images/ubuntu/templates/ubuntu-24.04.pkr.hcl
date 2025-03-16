@@ -8,8 +8,13 @@ packer {
 }
 
 locals {
-  epoch_like  = regexReplaceAll("[^0-9]", "", timestamp())
-  ami_name    = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-github-runner/2.322.0/${local.epoch_like}"
+  ts          = timestamp()
+  no_dash     = replace(local.ts, "-", "")
+  no_colon    = replace(local.no_dash, ":", "")
+  no_t        = replace(local.no_colon, "T", "")
+  no_z        = replace(local.no_t, "Z", "")
+  epoch_like  = replace(local.no_z, ".", "")
+  ami_name    = "runner/${var.github_runner_version}/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-${var.server_version}/${local.epoch_like}"
 }
 
 #########################
@@ -74,6 +79,19 @@ variable "install_password" {
   sensitive = true
 }
 
+variable "server_version" {
+  type = string
+}
+
+variable "github_runner_user" {
+  type    = string
+  default = "runner"
+}
+
+variable "github_runner_version" {
+  type = string
+}
+
 #########################
 # AWS Builder Section   #
 #########################
@@ -99,7 +117,7 @@ source "amazon-ebs" "build_image" {
 
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
-    volume_size           = 30
+    volume_size           = 20
     volume_type           = "gp3"
     delete_on_termination = true
   }
@@ -242,7 +260,6 @@ build {
       "./../scripts/build/install-git.sh",
       "./../scripts/build/install-git-lfs.sh",
       "./../scripts/build/install-github-cli.sh",
-      "./../scripts/build/install-github-runner.sh",
       "./../scripts/build/install-java-tools.sh",
       "./../scripts/build/install-mysql.sh",
       "./../scripts/build/install-nvm.sh",
@@ -268,7 +285,7 @@ build {
     environment_vars = [
       "HELPER_SCRIPTS=${var.helper_script_folder}",
       "DEBIAN_FRONTEND=noninteractive",
-      "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}"
+      "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}",
     ]
     execute_command  = "/bin/sh -c '{{ .Vars }} {{ .Path }}'"
     scripts          = ["./../scripts/build/install-homebrew.sh"]
@@ -284,7 +301,9 @@ build {
     environment_vars = [
       "HELPER_SCRIPTS=${var.helper_script_folder}",
       "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}",
-      "DEBIAN_FRONTEND=noninteractive"
+      "RUNNER_USER=${var.github_runner_user}",
+      "RUNNER_VERSION=${var.github_runner_version}",
+      "DEBIAN_FRONTEND=noninteractive",
     ]
     execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     scripts          = [
