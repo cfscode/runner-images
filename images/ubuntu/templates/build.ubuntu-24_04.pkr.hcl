@@ -324,8 +324,8 @@ build {
 
   provisioner "shell" {
     execute_command     = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
-    pause_before        = "1m0s"
-    scripts             = ["./../scripts/build/cleanup.sh"]
+    pause_before        = "5m0s"
+    scripts             = ["${path.root}/../scripts/build/cleanup.sh"]
     start_retry_timeout = "10m"
   }
 
@@ -340,6 +340,12 @@ build {
   }
 
   # Replace the Azure-specific deprovision command with an AWS-appropriate one (if needed)
+  provisioner "shell" {
+    environment_vars = ["HELPER_SCRIPTS=${var.helper_script_folder}"]
+    execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    scripts          = ["${path.root}/../scripts/build/post-build-validation.sh"]
+  }
+
   provisioner "shell" {
     execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     inline          = [

@@ -9,19 +9,26 @@ source ~/utils/utils.sh
 common_packages=$(get_toolset_value '.brew.common_packages[]')
 for package in $common_packages; do
     echo "Installing $package..."
-    if [[ $package == "packer" ]]; then
-        # Packer has been deprecated in Homebrew. Use tap to install Packer.
-        brew install hashicorp/tap/packer
-    else
-        if (is_VenturaX64 || is_SonomaX64) && [[ $package == "tcl-tk@8" ]]; then
+    case "$package" in
+        packer)
+            # Packer has been deprecated in Homebrew. Use tap to install Packer.
+            brew install hashicorp/tap/packer
+            ;;
+
+        tcl-tk@8)
             brew_smart_install "$package"
-            # Fix for https://github.com/actions/runner-images/issues/11074
-            ln -sf $(brew --prefix tcl-tk@8)/lib/libtcl8.6.dylib /usr/local/lib/libtcl8.6.dylib
-            ln -sf $(brew --prefix tcl-tk@8)/lib/libtk8.6.dylib /usr/local/lib/libtk8.6.dylib
-        else
+            if is_VenturaX64 || is_SonomaX64; then
+                # Fix for https://github.com/actions/runner-images/issues/11074
+                ln -sf "$(brew --prefix tcl-tk@8)/lib/libtcl8.6.dylib" /usr/local/lib/libtcl8.6.dylib
+                ln -sf "$(brew --prefix tcl-tk@8)/lib/libtk8.6.dylib" /usr/local/lib/libtk8.6.dylib
+            fi
+            ;;
+
+        # Default behaviour for all other packages
+        *)
             brew_smart_install "$package"
-        fi
-    fi
+            ;;
+    esac
 done
 
 cask_packages=$(get_toolset_value '.brew.cask_packages[]')
@@ -54,6 +61,7 @@ if is_SonomaX64 || is_VenturaX64 || is_SequoiaX64; then
             if is_SonomaX64; then
                 osascript $HOME/utils/confirm-identified-developers-macos14.scpt $USER_PASSWORD
             fi
+
             if is_SequoiaX64; then
                 osascript $HOME/utils/confirm-identified-developers-macos15.scpt $USER_PASSWORD
             fi
