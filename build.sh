@@ -25,7 +25,7 @@ echo "Found GitHub Runner version: ${latest_github_runner}"
 # Run the Packer build with the retrieved values.
 (
   cd ./images/ubuntu/templates/
-  packer_template="ubuntu-24.04.pkr.hcl"
+  packer_template="build.ubuntu-24_04.pkr.hcl"
   export PKR_VAR_server_version="${server_version}"
   export PKR_VAR_github_runner_version="${latest_github_runner}"
   packer init "$packer_template"
