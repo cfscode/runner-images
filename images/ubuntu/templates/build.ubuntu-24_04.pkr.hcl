@@ -39,8 +39,9 @@ variable "aws_tags" {
 
 # Variables common to both templates
 variable "vm_size" {
+  # 4 vCPU / 16 GiB, non-burstable — avoids t3 CPU-credit/RAM exhaustion dropping SSH on heavy steps.
   type    = string
-  default = "t3.large"
+  default = "m6i.xlarge"
 }
 
 variable "image_folder" {
@@ -114,6 +115,12 @@ source "amazon-ebs" "build_image" {
   ami_description             = "AMI built with Packer"
   associate_public_ip_address = var.associate_public_ip_address
   tags                        = var.aws_tags
+
+  # Wait up to ~3h (360 * 30s) for the AMI to become ready before giving up.
+  aws_polling {
+    delay_seconds = 30
+    max_attempts  = 360
+  }
 
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
