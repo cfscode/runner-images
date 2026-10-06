@@ -8,9 +8,10 @@ $ErrorActionPreference = "Stop"
 Import-Module "$env:HOME/image-generation/helpers/Common.Helpers.psm1"
 Import-Module "$env:HOME/image-generation/helpers/Xcode.Installer.psm1" -DisableNameChecking
 
+$os = Get-OSVersion
 $arch = Get-Architecture
 [Array]$xcodeVersions = (Get-ToolsetContent).xcode.$arch.versions
-write-host $xcodeVersions
+Write-Host $xcodeVersions
 $defaultXcode = (Get-ToolsetContent).xcode.default
 [Array]::Reverse($xcodeVersions)
 $threadCount = "5"
@@ -33,7 +34,11 @@ Write-Host "Configuring Xcode versions..."
 $xcodeVersions | ForEach-Object {
     Write-Host "Configuring Xcode $($_.link) ..."
     Invoke-XcodeRunFirstLaunch -Version $_.link
-    Install-AdditionalSimulatorRuntimes -Version $_.link -Arch $arch -Runtimes $_.install_runtimes
+    Install-XcodeAdditionalSimulatorRuntimes -Version $_.link -Arch $arch -Runtimes $_.install_runtimes
+    if ($_.link -match '^(\d+)\.(\d+)(?:\.(\d+))?$' -and [int]$matches[1] -ge 26) {
+        Install-XcodeAdditionalComponents -Version $_.link
+        Update-DyldCache -Version $_.link
+    }
 }
 
 Invoke-XcodeRunFirstLaunch -Version $defaultXcode

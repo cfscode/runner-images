@@ -57,7 +57,7 @@ Describe "Toolcache" {
         }
     }
 
-    Context "Ruby" -Skip:($os.IsArm64) {
+    Context "Ruby" {
         $rubyDirectory = Join-Path $toolcacheDirectory "Ruby"
         $rubyPackage = $packages | Where-Object { $_.ToolName -eq "Ruby" } | Select-Object -First 1
         $testCase = @{ RubyDirectory = $rubyDirectory }
@@ -95,49 +95,6 @@ Describe "Toolcache" {
                     param ( [string] $RubyBinPath )
 
                     "$RubyBinPath -e 'puts RUBY_VERSION'" | Should -ReturnZeroExitCode
-                }
-            }
-        }
-    }
-    Context "PyPy" -Skip:(-not $os.IsVenturaX64) {
-        $pypyDirectory = Join-Path $toolcacheDirectory "PyPy"
-        $pypyPackage = $packages | Where-Object { $_.ToolName -eq "pypy" } | Select-Object -First 1
-        $testCase = @{ PypyDirectory = $pypyDirectory }
-
-        It "Toolcache directory exists" -TestCases $testCase {
-            param ( [string] $PypyDirectory )
-
-            $PypyDirectory | Should -Exist
-        }
-
-        It "Toolcache directory contains at least one version of PyPy" -TestCases $testCase {
-            param ( [string] $PypyDirectory )
-
-            (Get-ChildItem -Path $PypyDirectory -Directory).Count | Should -BeGreaterThan 0
-        }
-
-    $pypyPackage.Versions | Where-Object { $_ } | ForEach-Object {
-        Context "$_" {
-            $versionDirectory = Get-ChildItem -Path $pypyDirectory -Directory -Filter "$_*" | Select-Object -First 1
-            $binFilename = If ($_.StartsWith("3")) { "pypy3" } else { "pypy" }
-            $pypyBinPath = Join-Path $versionDirectory.FullName $pypyPackage.Arch "bin" $binFilename
-            $testCase = @{ PypyVersion = $_; PypyBinPath = $pypyBinPath }
-
-                It "Version" -TestCases $testCase {
-                    param (
-                        [string] $PypyVersion,
-                        [string] $PypyBinPath
-                    )
-
-                    $result = Get-CommandResult "$PypyBinPath --version"
-                    $result.Output | Should -BeLike "*$PypyVersion*"
-                    $result.ExitCode | Should -Be 0
-                }
-
-                It "Run test script" -TestCases $testCase {
-                    param ( [string] $PypyBinPath )
-
-                    "$PypyBinPath -c 'import sys;print(sys.version)'" | Should -ReturnZeroExitCode
                 }
             }
         }

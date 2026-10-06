@@ -7,19 +7,20 @@
 $toolsetContent = Get-ToolsetContent
 $toolsetVersion = $toolsetContent.mongodb.version
 
-$getMongoReleases = Invoke-WebRequest -Uri "mongodb.com/docs/v$toolsetVersion/release-notes/$toolsetVersion/" -UseBasicParsing
-$targetReleases = $getMongoReleases.Links.href | Where-Object { $_ -like "#$toolsetVersion*---*" }
+# Resolve the latest patch release from the downloads feed rather than the release notes
+# page. The feed lists the newest release of each supported branch and is not subject to the
+# markup and URL changes that repeatedly broke scraping the docs.
+$mongoReleasesUrl = "https://downloads.mongodb.org/current.json"
+$mongoReleases = Invoke-RestMethod -Uri $mongoReleasesUrl
 
-$minorVersions = @()
-foreach ($release in $targetReleases) {
-    if ($release -notlike "*upcoming*") {
-        $pattern = '\d+\.\d+\.\d+'
-        $version = $release | Select-String -Pattern $pattern -AllMatches | ForEach-Object { $_.Matches } | ForEach-Object { $_.Value }
-        $minorVersions += $version
-    }
+$latestVersion = $mongoReleases.versions.version |
+    Where-Object { $_ -like "$toolsetVersion.*" } |
+    Sort-Object { [version]$_ } -Descending |
+    Select-Object -First 1
+
+if (-not $latestVersion) {
+    throw "Unable to resolve latest MongoDB $toolsetVersion release from $mongoReleasesUrl"
 }
-
-$latestVersion = $minorVersions[0]
 
 Install-Binary `
     -Url "https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-$latestVersion-signed.msi" `
@@ -39,19 +40,18 @@ $mongodbService.WaitForStatus('Running', '00:01:00')
 Stop-Service $mongodbService
 $mongodbService | Set-Service -StartupType Disabled
 
-# Install mongodb shell for mongodb > 5 version
-if (Test-IsWin25) {
-    $mongoshVersion = (Get-GithubReleasesByVersion -Repo "mongodb-js/mongosh" -Version "latest").version
+# Install mongodb shell for mongodb
+$mongoshVersion = (Get-GithubReleasesByVersion -Repo "mongodb-js/mongosh" -Version "latest").version
 
-    $mongoshDownloadUrl = Resolve-GithubReleaseAssetUrl `
-        -Repo "mongodb-js/mongosh" `
-        -Version $mongoshVersion `
-        -UrlMatchPattern "mongosh-*-x64.msi"
+$mongoshDownloadUrl = Resolve-GithubReleaseAssetUrl `
+    -Repo "mongodb-js/mongosh" `
+    -Version $mongoshVersion `
+    -UrlMatchPattern "mongosh-*-x64.msi"
 
-    Install-Binary -Type MSI `
-        -Url $mongoshDownloadUrl `
-        -ExtraInstallArgs @('ALLUSERS=1') `
-        -ExpectedSubject 'CN="MongoDB, Inc.", O="MongoDB, Inc.", L=New York, S=New York, C=US'
-}
+Install-Binary -Type MSI `
+    -Url $mongoshDownloadUrl `
+    -ExtraInstallArgs @('ALLUSERS=1') `
+    -ExpectedSubject 'CN="MongoDB, Inc.", O="MongoDB, Inc.", L=New York, S=New York, C=US'
+
 
 Invoke-PesterTests -TestFile "Databases" -TestName "MongoDB"

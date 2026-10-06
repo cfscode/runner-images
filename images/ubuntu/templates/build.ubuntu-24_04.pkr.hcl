@@ -193,10 +193,7 @@ build {
   }
 
   provisioner "shell" {
-    environment_vars = [
-      "IMAGE_VERSION=${var.image_version}",
-      "IMAGEDATA_FILE=${var.imagedata_file}"
-    ]
+    environment_vars = ["HELPER_SCRIPTS=${var.helper_script_folder}", "IMAGE_VERSION=${var.image_version}", "IMAGEDATA_FILE=${var.imagedata_file}"]
     execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     scripts          = ["./../scripts/build/configure-image-data.sh"]
   }
@@ -249,34 +246,62 @@ build {
     ]
     execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     scripts          = [
-      "./../scripts/build/install-apt-common.sh",
-      "./../scripts/build/configure-dpkg.sh",
-      "./../scripts/build/install-zstd.sh",
-      "./../scripts/build/install-actions-cache.sh",
-      "./../scripts/build/install-runner-package.sh",
-      "./../scripts/build/install-aws-tools.sh",
-      "./../scripts/build/install-cmake.sh",
-      "./../scripts/build/install-container-tools.sh",
-      "./../scripts/build/install-git.sh",
-      "./../scripts/build/install-git-lfs.sh",
-      "./../scripts/build/install-github-cli.sh",
-      "./../scripts/build/install-java-tools.sh",
-      "./../scripts/build/install-mysql.sh",
-      "./../scripts/build/install-nvm.sh",
-      "./../scripts/build/install-nodejs.sh",
-      "./../scripts/build/install-ruby.sh",
-      "./../scripts/build/install-yq.sh",
-      "./../scripts/build/install-pypy.sh",
-      "./../scripts/build/install-python.sh",
+      "${path.root}/../scripts/build/install-actions-cache.sh",
+      "${path.root}/../scripts/build/install-apt-common.sh",
+      "${path.root}/../scripts/build/install-azcopy.sh",
+      "${path.root}/../scripts/build/install-azure-cli.sh",
+      "${path.root}/../scripts/build/install-azure-devops-cli.sh",
+      "${path.root}/../scripts/build/install-bicep.sh",
+      "${path.root}/../scripts/build/install-apache.sh",
+      "${path.root}/../scripts/build/install-aws-tools.sh",
+      "${path.root}/../scripts/build/install-clang.sh",
+      "${path.root}/../scripts/build/install-swift.sh",
+      "${path.root}/../scripts/build/install-cmake.sh",
+      "${path.root}/../scripts/build/install-codeql-bundle.sh",
+      "${path.root}/../scripts/build/install-awf.sh",
+      "${path.root}/../scripts/build/install-container-tools.sh",
+      "${path.root}/../scripts/build/install-dotnetcore-sdk.sh",
+      "${path.root}/../scripts/build/install-microsoft-edge.sh",
+      "${path.root}/../scripts/build/install-gcc-compilers.sh",
+      "${path.root}/../scripts/build/install-firefox.sh",
+      "${path.root}/../scripts/build/install-gfortran.sh",
+      "${path.root}/../scripts/build/install-git.sh",
+      "${path.root}/../scripts/build/install-git-lfs.sh",
+      "${path.root}/../scripts/build/install-github-cli.sh",
+      "${path.root}/../scripts/build/install-google-chrome.sh",
+      "${path.root}/../scripts/build/install-google-cloud-cli.sh",
+      "${path.root}/../scripts/build/install-haskell.sh",
+      "${path.root}/../scripts/build/install-java-tools.sh",
+      "${path.root}/../scripts/build/install-kubernetes-tools.sh",
+      "${path.root}/../scripts/build/install-miniconda.sh",
+      "${path.root}/../scripts/build/install-kotlin.sh",
+      "${path.root}/../scripts/build/install-mysql.sh",
+      "${path.root}/../scripts/build/install-nginx.sh",
+      "${path.root}/../scripts/build/install-nvm.sh",
+      "${path.root}/../scripts/build/install-nodejs.sh",
+      "${path.root}/../scripts/build/install-copilot-cli.sh",
+      "${path.root}/../scripts/build/install-bazel.sh",
+      "${path.root}/../scripts/build/install-php.sh",
+      "${path.root}/../scripts/build/install-postgresql.sh",
+      "${path.root}/../scripts/build/install-pulumi.sh",
+      "${path.root}/../scripts/build/install-ruby.sh",
+      "${path.root}/../scripts/build/install-rust.sh",
+      "${path.root}/../scripts/build/install-julia.sh",
+      "${path.root}/../scripts/build/install-selenium.sh",
+      "${path.root}/../scripts/build/install-packer.sh",
+      "${path.root}/../scripts/build/install-vcpkg.sh",
+      "${path.root}/../scripts/build/configure-dpkg.sh",
+      "${path.root}/../scripts/build/install-yq.sh",
+      "${path.root}/../scripts/build/install-android-sdk.sh",
+      "${path.root}/../scripts/build/install-pypy.sh",
+      "${path.root}/../scripts/build/install-python.sh",
+      "${path.root}/../scripts/build/install-zstd.sh",
+      "${path.root}/../scripts/build/install-ninja.sh"
     ]
   }
 
   provisioner "shell" {
-    environment_vars = [
-      "HELPER_SCRIPTS=${var.helper_script_folder}",
-      "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}",
-      "DOCKERHUB_PULL_IMAGES=NO",
-    ]
+    environment_vars = ["HELPER_SCRIPTS=${var.helper_script_folder}", "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}"]
     execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     scripts          = ["./../scripts/build/install-docker.sh"]
   }
@@ -298,21 +323,10 @@ build {
   }
 
   provisioner "shell" {
-    environment_vars = [
-      "HELPER_SCRIPTS=${var.helper_script_folder}",
-      "INSTALLER_SCRIPT_FOLDER=${var.installer_script_folder}",
-      "RUNNER_USER=${var.github_runner_user}",
-      "RUNNER_VERSION=${var.github_runner_version}",
-      "DEBIAN_FRONTEND=noninteractive",
-    ]
-    execute_command  = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
-    scripts          = [
-      "./../scripts/build/install-github-runner.sh",
-    ]
+    execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    script          = "${path.root}/../scripts/build/list-dpkg.sh"
   }
 
-  # Note: The following cleanup command was using the Azure Linux agent (waagent) to deprovision.
-  # For AWS you might instead want to run a cloud-init clean or other cleanup tasks.
   provisioner "shell" {
     execute_command   = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     expect_disconnect = true

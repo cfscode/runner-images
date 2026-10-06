@@ -5,10 +5,10 @@
             "arch": "x64",
             "platform" : "win32",
             "versions": [
-                "3.1",
                 "3.2",
                 "3.3",
-                "3.4"
+                "3.4",
+                "4.0"
             ],
             "default": "3.3"
         },
@@ -18,13 +18,13 @@
             "arch": "x64",
             "platform" : "win32",
             "versions": [
-                "3.9.*",
                 "3.10.*",
                 "3.11.*",
                 "3.12.*",
-                "3.13.*"
+                "3.13.*",
+                "3.14.*"
             ],
-            "default": "3.9.*"
+            "default": "3.12.*"
         },
         {
             "name": "PyPy",
@@ -41,9 +41,8 @@
             "arch": "x64",
             "platform" : "win32",
             "versions": [
-                "18.*",
-                "20.*",
-                "22.*"
+                "22.*",
+                "24.*"
             ]
         },
         {
@@ -52,10 +51,9 @@
             "arch": "x64",
             "platform" : "win32",
             "versions": [
-                "1.22.*",
-                "1.23.*",
                 "1.24.*",
-                "1.25.*"
+                "1.25.*",
+                "1.26.*"
             ],
             "default": "1.24.*"
         }
@@ -63,27 +61,26 @@
     "powershellModules": [
         { "name": "DockerMsftProvider" },
         { "name": "MarkdownPS" },
-        { "name": "Pester" },
+        { "name": "Pester", "versions": [ "5.9.0"] },
         { "name": "PowerShellGet" },
         { "name": "PSScriptAnalyzer" },
         { "name": "PSWindowsUpdate" },
         { "name": "SqlServer" },
         { "name": "VSSetup" },
         { "name": "Microsoft.Graph" },
-        {"name": "AWSPowershell"}
+        { "name": "AWSPowershell" }
     ],
     "azureModules": [
         {
             "name": "az",
             "versions": [
-                "12.5.0"
-            ],
-            "zip_versions": []
+                "15.6.1"
+            ]
         }
     ],
     "java": {
         "default": "17",
-        "versions": [ "8", "11", "17", "21"]
+        "versions": [ "8", "11", "17", "21", "25"]
     },
     "android": {
         "commandline_tools_url": "https://dl.google.com/android/repository/commandlinetools-win-12266719_latest.zip",
@@ -97,26 +94,20 @@
         ],
         "addons": [],
         "additional_tools": [
-            "cmake;3.22.1",
             "cmake;3.30.5",
-            "cmake;3.31.5"
+            "cmake;3.31.5",
+            "cmake;4.1.2"
         ],
         "ndk": {
             "default": "27",
             "versions": [
-                "26", "27", "28"
+                "27", "29", "30"
             ]
         }
     },
     "mingw": {
-        "version": "14.2.0",
-        "runtime": "ucrt",
-        "pinnedDetails": {
-            "link": "https://github.com/actions/runner-images-internal/pull/6702",
-            "reason": "Meaningful reason must be added at next update.",
-            "review-at": "2025-06-01",
-            "type": "preexisting-pinned-version-without-reason"
-        }
+        "version": "15.*",
+        "runtime": "ucrt"
     },
     "MsysPackages": {
         "msys2": [],
@@ -139,7 +130,7 @@
         "subversion" : "17",
         "edition" : "Enterprise",
         "channel": "release",
-        "installChannel": "",
+        "installChannelUri": "",
         "workloads": [
             "Component.Dotfuscator",
             "Component.Linux.CMake",
@@ -214,7 +205,6 @@
             "Microsoft.VisualStudio.Workload.Universal",
             "Microsoft.VisualStudio.Workload.VisualStudioExtension",
             "Component.MDD.Linux",
-            "Component.MDD.Linux.GCC.arm",
             "Component.Microsoft.Windows.DriverKit",
             "wasm.tools",
             "Microsoft.Component.MSBuild"
@@ -230,8 +220,8 @@
     "docker": {
         "images": [],
         "components": {
-            "docker": "27.5.1",
-            "compose": "2.32.2"
+            "docker": "29.7.2",
+            "compose": "2.40.3"
         }
     },
     "pipx": [
@@ -254,18 +244,19 @@
     },
     "serviceFabric": {
         "runtime": {
-            "version": "10.1.2493.9590",
-            "checksum": "09C63A971BACDE338282C73B3C9174BED9AAD53E1D3A1B73D44515852C9C00CF"
+            "version": "11.7.157.1",
+            "checksum": "BBD4531D80ED5FA8D2704C9267F701684FC58306987184BE9CAF35153F358C7B"
         },
         "sdk": {
-            "version": "7.1.2493",
-            "checksum": "0CB1084156C75CF5075EA91ABA330CF10B58648B8E036C9C2F286805263C497F"
+            "version": "8.7.157",
+            "checksum": "32ECB92CA3C9369A0BEA688737F9714E93EC1F8022D1708ABF5084E5B1F9EFBA"
         }
     },
     "dotnet": {
         "versions": [
             "8.0",
-            "9.0"
+            "9.0",
+            "10.0"
         ],
         "tools": [
             { "name": "nbgv", "test": "nbgv --version", "getversion": "nbgv --version" }
@@ -278,6 +269,7 @@
             { "name": "aria2" },
             { "name": "azcopy10" },
             { "name": "Bicep" },
+            { "name": "innosetup" },
             { "name": "jq" },
             { "name": "NuGet.CommandLine" },
             { "name": "packer" },
@@ -290,11 +282,12 @@
             },
             {
                 "name": "cmake.install",
+                "version": "3.31.6",
                 "args": [ "--installargs", "ADD_CMAKE_TO_PATH=\"System\"" ]
             },
             {
                 "name": "strawberryperl" ,
-                "args": [ "--version", "5.40.2.2" ]
+                "args": [ "--version", "5.42.0.1" ]
             },
             { "name": "imagemagick" },
             { "name": "ninja" }
@@ -316,7 +309,7 @@
         "version": "20"
     },
     "php": {
-        "version": "8.4"
+        "version": "8.5"
     },
     "postgresql": {
         "version": "17"
@@ -325,15 +318,9 @@
         "version": "latest"
     },
     "openssl": {
-        "version": "3.5.2",
-        "pinnedDetails": {
-            "link": "https://github.com/openssl/openssl/releases/tag/openssl-3.5.2",
-            "reason": "Installer not found for version 3.5.1",
-            "review-at": "2025-10-10",
-            "type": "preexisting-pinned-version-without-reason"
-        }
+        "version": "3.*"
     },
     "pwsh": {
-        "version": "7.4"
+        "version": "7.6"
     }
 }

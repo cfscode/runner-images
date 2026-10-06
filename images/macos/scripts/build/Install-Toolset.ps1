@@ -39,10 +39,10 @@ foreach ($tool in $tools) {
 
     # Get github release asset for each version
     foreach ($version in $tool.arch.$arch.versions) {
-        $asset = $assets | Where-Object version -like $version `
-                         | Select-Object -ExpandProperty files `
-                         | Where-Object { ($_.platform -eq $tool.platform) -and ($_.arch -eq $arch)} `
-                         | Select-Object -First 1
+        $asset = $assets | Where-Object { ($_.version -like $version) -and ($_.version -as [version] -ne $null) } `
+            | Select-Object -ExpandProperty files `
+            | Where-Object { ($_.platform -eq $tool.platform) -and ($_.arch -eq $arch) } `
+            | Select-Object -First 1
 
         Write-Host "Installing $($tool.name) $version..."
         if ($null -ne $asset) {
@@ -53,5 +53,14 @@ foreach ($tool in $tools) {
         }
     }
 }
+
+
+# Ensure python3 and pip3 point to the latest installed Python version
+# Fix for ./setup.sh script behavior for python3 and pip3 symlinks
+# Only Intel images are affected since /usr/local/bin is used for Intel
+# ARM images use /opt/homebrew/bin which is managed by Homebrew
+Write-Host "Ensuring python3 and pip3 point to the latest installed Python version from Homebrew"
+brew unlink python@3.14 && brew link python@3.14 --force --overwrite
+Split-Path (readlink (which python3)) 
 
 Invoke-PesterTests "Toolcache"

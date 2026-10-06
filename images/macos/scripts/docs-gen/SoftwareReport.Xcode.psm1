@@ -1,8 +1,6 @@
 Import-Module "$PSScriptRoot/../helpers/Common.Helpers.psm1"
 Import-Module "$PSScriptRoot/../helpers/Xcode.Helpers.psm1"
 
-$os = Get-OSVersion
-
 function Get-XcodePaths {
     $xcodePaths = Get-ChildItem -Path "/Applications" -Filter "Xcode_*.app" | Where-Object { !$_.LinkType }
     return $xcodePaths | Select-Object -ExpandProperty Fullname
@@ -225,17 +223,18 @@ function Build-XcodeSimulatorsTable {
             }
         }
         return [PSCustomObject] @{
-            "OS" = $runtime.name
+            "Name"       = $runtime.name
+            "OS"         = $runtime.version
             "Simulators" = [String]::Join("<br>", $sortedRuntimeDevices)
         }
     } | Sort-Object {
         # Sort rule 1
-        $sdkNameParts = $_."OS".Split(" ")
+        $sdkNameParts = $_."Name".Split(" ")
         $platformName = [String]::Join(" ", $sdkNameParts[0..($sdkNameParts.Length - 2)])
         return Get-XcodePlatformOrder $platformName
     }, {
         # Sort rule 2
-        $sdkNameParts = $_."OS".Split(" ")
+        $sdkNameParts = $_."Name".Split(" ")
         return [System.Version]::Parse($sdkNameParts[-1])
     }
 }

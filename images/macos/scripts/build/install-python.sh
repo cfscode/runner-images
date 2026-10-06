@@ -11,9 +11,19 @@ echo "Installing Python Tooling"
 # Close Finder window
 close_finder_window
 
-echo "Brew Installing Python 3"
-brew_smart_install "python@3.12"
+if is_SonomaX64; then
+    # For the MacOS 14 Intel python dependency expat stopped to work, using pinned commit
+    COMMIT=808c33c0f058f5898ef0556a343a5599f801f942
+    FILE_NAME="e/expat.rb"
+    FORMULA_NAME="expat"
+    brew_install_pinned_formula "$FORMULA_NAME" "$FILE_NAME" "$COMMIT"
+fi
 
+# Installing latest Homebrew Python 3 to handle python3 and pip3 symlinks
+echo "Brew Installing default Python 3"
+brew_smart_install "python3"
+
+# Pipx has its own Python dependency
 echo "Installing pipx"
 
 if is_Arm64; then

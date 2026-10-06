@@ -55,7 +55,7 @@ function Get-DockerVersion {
     return $dockerVersion
 }
 
-function Get-DockerComposeVersionV2 {
+function Get-DockerComposeVersion {
     $dockerComposeVersion = docker compose version --short
     return $dockerComposeVersion
 }
@@ -121,8 +121,13 @@ function Get-MySQLVersion {
     return $mysqlVersion
 }
 
-function Get-SQLOLEDBDriverVersion {
+function Get-SQLOLEDBDriver18Version {
     $SQLOLEDBDriverVersion = (Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\MSOLEDBSQL' InstalledVersion).InstalledVersion
+    return $SQLOLEDBDriverVersion
+}
+
+function Get-SQLOLEDBDriver19Version {
+    $SQLOLEDBDriverVersion = (Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\MSOLEDBSQL19' InstalledVersion).InstalledVersion
     return $SQLOLEDBDriverVersion
 }
 
@@ -146,11 +151,6 @@ function Get-OpenSSLVersion {
 function Get-PackerVersion {
     $packerVersion = (packer --version | Select-String "^Packer").Line.Replace('v','') | Get-StringPart -Part 1
     return $packerVersion
-}
-
-function Get-ParcelVersion {
-    $parcelVersion = parcel --version
-    return "$parcelVersion"
 }
 
 function Get-PulumiVersion {
@@ -228,12 +228,6 @@ function Get-AlibabaCLIVersion {
     return $alicliVersion
 }
 
-function Get-CloudFoundryVersion {
-    $(cf version) -match "(?<version>\d+\.\d+\.\d+)" | Out-Null
-    $cfVersion = $Matches.Version
-    return $cfVersion
-}
-
 function Get-7zipVersion {
     (7z | Out-String) -match "7-Zip (?<version>\d+\.\d+\.?\d*)" | Out-Null
     $version = $Matches.Version
@@ -258,12 +252,13 @@ function Get-StackVersion {
     return $stackVersion
 }
 
-function Get-GoogleCloudCLIVersion {
-    return (((cmd /c "gcloud --version") -match "Google Cloud SDK") -replace "Google Cloud SDK").Trim()
+function Get-ServiceFabricRuntimeVersion {
+    $serviceFabricRuntimeVersion = Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Service Fabric\' -Name FabricVersion
+    return $serviceFabricRuntimeVersion
 }
 
 function Get-ServiceFabricSDKVersion {
-    $serviceFabricSDKVersion = Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Service Fabric\' -Name FabricVersion
+    $serviceFabricSDKVersion = Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Service Fabric SDK\' -Name FabricSDKVersion
     return $serviceFabricSDKVersion
 }
 

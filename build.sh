@@ -9,7 +9,7 @@ set -euo pipefail
 # Extract the server version from the latest matching AMI.
 server_version=$(aws ec2 describe-images \
   --owners 099720109477 \
-  --filters "Name=name,Values=ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*" \
+  --filters "Name=name,Values=ubuntu/images/hvm-ssd-gp3/ubuntu-resolute-26.04-amd64-server-*" \
   --query 'Images | sort_by(@, &CreationDate)[-1].Name' \
   --output text | sed 's/.*server-//')
 
@@ -25,7 +25,7 @@ echo "Found GitHub Runner version: ${latest_github_runner}"
 # Run the Packer build with the retrieved values.
 (
   cd ./images/ubuntu/templates/
-  packer_template="build.ubuntu-24_04.pkr.hcl"
+  packer_template="build.ubuntu-26_04.pkr.hcl"
   export PKR_VAR_server_version="${server_version}"
   export PKR_VAR_github_runner_version="${latest_github_runner}"
   packer init "$packer_template"
